@@ -20,11 +20,11 @@ def process_one(in_dir, filename):
     wav, sr = torchaudio.load(filename)
     if wav.shape[0] > 1:  # mix to mono
         wav = wav.mean(dim=0, keepdim=True)
-    wav16k = T.Resample(sr, 16000)(wav)
-    wav24k = T.Resample(sr, 24000)(wav)
     whisper_feat_path = filename.replace(in_dir, in_dir+"_whisperfeat").replace('.mp3','.pt').replace('.flac','.pt')
     filename = filename.replace(in_dir, in_dir+"_processed").replace('.mp3','.wav').replace('.flac','.wav')
     wav24k_path = filename
+    wav16k = T.Resample(sr, 16000)(wav)
+    wav24k = T.Resample(sr, 24000)(wav)
     if not os.path.exists(os.path.dirname(wav24k_path)):
         os.makedirs(os.path.dirname(wav24k_path))
     if not os.path.exists(os.path.dirname(whisper_feat_path)):
@@ -34,12 +34,13 @@ def process_one(in_dir, filename):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     wav16k = wav16k.to(device)
 
-    whisper_feats = reader.get_feats_tensor(wav16k[0], rate=16000).unsqueeze(0).transpose(1, 2)
-    torch.save(whisper_feats.cpu(), whisper_feat_path)
-    with torch.no_grad():
-        x = repcodec_model.encoder(whisper_feats)
-        z = repcodec_model.projector(x)
-    torch.save(z.cpu(), cvec_path)
+    if not os.path.exists(cvec_path):
+        whisper_feats = reader.get_feats_tensor(wav16k[0], rate=16000).unsqueeze(0).transpose(1, 2)
+        torch.save(whisper_feats.cpu(), whisper_feat_path)
+        with torch.no_grad():
+            x = repcodec_model.encoder(whisper_feats)
+            z = repcodec_model.projector(x)
+        torch.save(z.cpu(), cvec_path)
 
     spec_path = filename.replace(".wav", ".mel.pt")
     spec_process = torchaudio.transforms.MelSpectrogram(
