@@ -317,7 +317,7 @@ class AA_diffusion(nn.Module):
         # self.refer_model = instantiate_from_config(refer_config)
         self.control_scales = [1.0] * 13
         # self.unconditioned_embedding = nn.Parameter(torch.randn(1,100,1))
-        self.unconditioned_cat_embedding = nn.Parameter(torch.randn(1,768,1))
+        self.unconditioned_cat_embedding = nn.Parameter(torch.randn(1,1024,1))
     def get_uncond_batch(self, code_emb):
         unconditioned_batches = torch.zeros((code_emb.shape[0], 1, 1), device=code_emb.device)
         # Mask out the conditioning branch for whole batch elements, implementing something similar to classifier-free guidance.

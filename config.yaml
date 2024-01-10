@@ -6,7 +6,7 @@ dataloader:
   pin_memory : true
 base_diffusion:
   in_channels: 100
-  hint_channels: 768
+  hint_channels: 1024
   out_channels: 200
   model_channels: 512
   attention_resolutions: [ 4, 2, 1 ]
@@ -21,7 +21,7 @@ base_diffusion:
   legacy: False
 refer_diffusion:
   in_channels: 100
-  hint_channels: 768
+  hint_channels: 1024
   out_channels: 200
   model_channels: 512
   attention_resolutions: [ 4, 2, 1 ]
@@ -66,8 +66,9 @@ train:
   eps : 0.000000001
   keep_ckpts : 3
   all_in_mem : false
+  unconditioned_percentage: 0.1
 data:
-  training_files : "../vc_dataset_processed_processed"
-  val_files : "../vc_dataset_processed_processed"
+  training_files : "dev/temp_processed"
+  val_files : "dev/temp_processed"
   sampling_rate : 24000
   hop_length : 256

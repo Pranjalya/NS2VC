@@ -10,7 +10,7 @@ import torchaudio.transforms as T
 import torch
 from glob import glob
 from tqdm import tqdm
-from process_one import process_one
+from process_one_repcodec import process_one
 
 # from audiolm_pytorch import SoundStream, EncodecWrapper
 import utils

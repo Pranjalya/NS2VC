@@ -78,7 +78,7 @@ def _build_vision_tower(
         quick_gelu: bool = False,
         cast_dtype: Optional[torch.dtype] = None
 ):
-    if isinstance(vision_cfg, dict):
+    if vision_cfg is not None:
         vision_cfg = CLIPVisionCfg(**vision_cfg)
 
     # OpenAI models are pretrained w/ QuickGELU but native nn.GELU is both faster and more

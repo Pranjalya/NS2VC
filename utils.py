@@ -17,6 +17,8 @@ import torch
 from torch.nn import functional as F
 from modules.commons import sequence_mask
 
+from repcodec.RepCodec import RepCodec
+
 MATPLOTLIB_FLAG = False
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -539,3 +541,31 @@ class HParams():
 
   def __repr__(self):
     return self.__dict__.__repr__()
+
+
+def get_repcodec_model(checkpoint_path, device="cpu"):
+  model = RepCodec(
+    input_channels=1024,
+    output_channels=1024,
+    encode_channels=1024,
+    decode_channels=1024,
+    code_dim=1024,
+    codebook_num=1,
+    codebook_size=1024,
+    bias=True,
+    enc_ratios=(1, 1),
+    dec_ratios=(1, 1),
+    enc_strides=(1, 1),
+    dec_strides=(1, 1),
+    enc_kernel_size=3,
+    dec_kernel_size=3,
+    enc_block_dilations=(1, 1),
+    enc_block_kernel_size=3,
+    dec_block_dilations=(1, 1),
+    dec_block_kernel_size=3
+  ).to(device)
+
+  state_dict = torch.load(checkpoint_path, map_location=device)
+  model.load_state_dict(state_dict["model"]["generator"], strict=True)
+  model.eval()
+  return model
