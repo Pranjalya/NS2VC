@@ -3,3 +3,5 @@ ttts
 tensorboard
 torch
 torchaudio
+omegaconf
+vocos

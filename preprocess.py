@@ -41,4 +41,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     filenames = glob(f"{args.in_dir}/**/*.wav", recursive=True)+glob(f"{args.in_dir}/**/*.flac", recursive=True)  # [:10]
     in_dir = args.in_dir
-    process_batch(filenames,1)
+    process_batch(filenames, 2)

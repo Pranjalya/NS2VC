@@ -202,7 +202,7 @@ class Trainer(object):
                         global_step=self.step,
                         scalars=scalar_dict
                     )
-                if accelerator.is_main_process and self.step % self.cfg['train']['save_freq'] == 0:
+                if accelerator.is_main_process and (self.step % self.cfg['train']['save_freq'] == 0 or self.step % self.cfg['train']['eval_freq'] == 0):
                     data = next(self.eval_dataloader)
                     refer_audio = data['wav_refer']
                     gt_audio = data['wav']
@@ -232,10 +232,11 @@ class Trainer(object):
                         images=image_dict,
                     )
 
-                    keep_ckpts = self.cfg['train']['keep_ckpts']
-                    if keep_ckpts > 0:
-                        utils.clean_checkpoints(path_to_models=self.logs_folder, n_ckpts_to_keep=keep_ckpts, sort_by_time=True)
-                    self.save(self.step//1000)
+                    if self.step % self.cfg['train']['save_freq'] == 0:
+                        keep_ckpts = self.cfg['train']['keep_ckpts']
+                        if keep_ckpts > 0:
+                            utils.clean_checkpoints(path_to_models=self.logs_folder, n_ckpts_to_keep=keep_ckpts, sort_by_time=True)
+                        self.save(self.step)
                 self.step += 1
                 pbar.update(1)
         accelerator.print('training complete')

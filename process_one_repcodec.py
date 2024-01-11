@@ -8,9 +8,9 @@ from repcodec.whisper_feature_reader import WhisperFeatureReader
 from repcodec.RepCodec import RepCodec
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-repcodec_chkpt_path = "/home/pranj/dev/repcodec_200k.pkl"
+repcodec_chkpt_path = "/root/dev/RepCodec-train/logs/checkpoint-200000steps.pkl"
 
-whisper_root, whisper_name, layer = "/home/pranj/dev/temp/whisper_model",  "medium", 24
+whisper_root, whisper_name, layer = "/root/dev/whisper_model",  "medium", 24
 reader = WhisperFeatureReader(whisper_root, whisper_name, layer, device=device)
 
 repcodec_model = utils.get_repcodec_model(repcodec_chkpt_path, device).to(device)
@@ -22,15 +22,20 @@ def process_one(in_dir, filename):
         wav = wav.mean(dim=0, keepdim=True)
     whisper_feat_path = filename.replace(in_dir, in_dir+"_whisperfeat").replace('.mp3','.pt').replace('.flac','.pt')
     filename = filename.replace(in_dir, in_dir+"_processed").replace('.mp3','.wav').replace('.flac','.wav')
+    spec_path = filename.replace(".wav", ".mel.pt")
     wav24k_path = filename
+    cvec_path = filename + ".cvec.pt"
+
+    if os.path.exists(whisper_feat_path) and os.path.exists(spec_path) and os.path.exists(cvec_path):
+        return
+
     wav16k = T.Resample(sr, 16000)(wav)
     wav24k = T.Resample(sr, 24000)(wav)
     if not os.path.exists(os.path.dirname(wav24k_path)):
-        os.makedirs(os.path.dirname(wav24k_path))
+        os.makedirs(os.path.dirname(wav24k_path), exist_ok=True)
     if not os.path.exists(os.path.dirname(whisper_feat_path)):
-        os.makedirs(os.path.dirname(whisper_feat_path))
+        os.makedirs(os.path.dirname(whisper_feat_path), exist_ok=True)
     torchaudio.save(wav24k_path, wav24k, 24000)
-    cvec_path = filename + ".cvec.pt"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     wav16k = wav16k.to(device)
 
@@ -42,7 +47,6 @@ def process_one(in_dir, filename):
             z = repcodec_model.projector(x)
         torch.save(z.cpu(), cvec_path)
 
-    spec_path = filename.replace(".wav", ".mel.pt")
     spec_process = torchaudio.transforms.MelSpectrogram(
         sample_rate=24000,
         n_fft=1024,
