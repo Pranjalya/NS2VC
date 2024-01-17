@@ -244,5 +244,5 @@ class Trainer(object):
 
 if __name__ == '__main__':
     trainer = Trainer()
-    # trainer.load('/home/hyc/tortoise_plus_zh/ttts/diffusion/logs/2023-11-06-18-18-28/model-79.pt')
+    # trainer.load('/root/dev/NS2VC/logs/vc/2024-01-15-16-50-36/model-221500.pt')
     trainer.train()
